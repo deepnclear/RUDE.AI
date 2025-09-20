@@ -23,6 +23,7 @@ class StructuredLogFormat:
     situation: str               # 1-2 sentences describing the situation
     trigger: str                 # What caused the emotional response
     somatic_cognitive_response: str # Physical/bodily reactions and cognitive responses
+    pattern: str                 # Identified emotional/behavioral pattern
     insight: str                 # Pattern analysis and deeper understanding
     
     # Metadata
@@ -119,7 +120,23 @@ class LogStructure:
         """
         return "Physical sensations and cognitive responses, formatted with bullet points if multiple"
     
-    
+    @staticmethod
+    def get_pattern_format() -> str:
+        """
+        Pattern format rules:
+        - Identifies the primary emotional/behavioral pattern
+        - Uses consistent pattern naming from training examples
+        - Single descriptive phrase or term
+        
+        Examples:
+        - "Sunk Cost Fallacy"
+        - "Anticipatory Vigilance"
+        - "Emotional Pendulum"
+        - "Compliance Reflex"
+        - "Performance Anxiety"
+        - "Family Dynamics"
+        """
+        return "Primary emotional or behavioral pattern identified in the situation"
     
     @staticmethod
     def get_insight_format() -> str:
@@ -170,6 +187,19 @@ class LogComponentPatterns:
         "Cognitive [pattern]: [specific thoughts]"
     ]
     
+    PATTERN_NAMES = [
+        "Sunk Cost Fallacy",
+        "Anticipatory Vigilance", 
+        "Emotional Pendulum",
+        "Compliance Reflex",
+        "Boundary Violation",
+        "Performance Anxiety",
+        "Family Dynamics",
+        "Financial Anxiety",
+        "Social Validation Seeking",
+        "Perfectionism Loop"
+    ]
+    
     INSIGHT_PATTERNS = [
         "This is [pattern type] in [specific] form",
         "The [emotion] is not about [surface issue]—it's [deeper pattern]",
@@ -197,11 +227,13 @@ class LogFormatValidation:
             errors.append("Header must contain time description")
         
         # Check required components
-        required_components = ['situation', 'trigger', 'somatic_cognitive_response', 'insight']
+        required_components = ['situation', 'trigger', 'somatic_cognitive_response', 'pattern', 'insight']
         for component in required_components:
             value = getattr(log, component)
-            if not value or len(value.strip()) < 10:
-                errors.append(f"{component.replace('_', ' ').title()} must be substantive (at least 10 characters)")
+            # Pattern field can be shorter than other components
+            min_length = 3 if component == 'pattern' else 10
+            if not value or len(value.strip()) < min_length:
+                errors.append(f"{component.replace('_', ' ').title()} must be substantive (at least {min_length} characters)")
         
         return errors
     

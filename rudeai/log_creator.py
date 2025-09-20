@@ -27,7 +27,8 @@ class LogCreator:
         situation = self._extract_situation(situation_text)
         trigger = self._extract_trigger(situation_text)
         somatic_cognitive_response = self._extract_somatic_cognitive_response(situation_text)
-        insight = self._generate_insight(situation_text, trigger, somatic_cognitive_response)
+        pattern = self._identify_pattern(situation_text, trigger, somatic_cognitive_response)
+        insight = self._generate_insight(situation_text, trigger, somatic_cognitive_response, pattern)
         
         return StructuredLogFormat(
             date=timestamp.strftime("%Y-%m-%d"),
@@ -36,6 +37,7 @@ class LogCreator:
             situation=situation,
             trigger=trigger,
             somatic_cognitive_response=somatic_cognitive_response,
+            pattern=pattern,
             insight=insight,
             log_id=log_id,
             timestamp=timestamp,
@@ -50,6 +52,7 @@ class LogCreator:
 Situation: {log.situation}
 Trigger: {log.trigger}
 Somatic Cognitive Response: {log.somatic_cognitive_response}
+Pattern: {log.pattern}
 Insight: {log.insight}"""
         
         return formatted_log
@@ -277,11 +280,11 @@ Insight: {log.insight}"""
         
         return "Emotional activation detected"
     
-    def _generate_insight(self, text: str, trigger: str, somatic_cognitive_response: str) -> str:
-        """Generate insight based on patterns identified in the situation"""
+    def _identify_pattern(self, text: str, trigger: str, somatic_cognitive_response: str) -> str:
+        """Identify the primary emotional/behavioral pattern"""
         text_lower = text.lower()
         
-        # Identify pattern types from examples with better scoring
+        # Pattern indicators with improved scoring
         pattern_indicators = {
             'sunk_cost': ['money', 'cost', 'waste', 'spent', 'paid', 'dollar', 'price', 'expensive', 'wasted', 'stupid'],
             'anticipatory_vigilance': ['checking', 'message', 'phone', 'read', 'delivered', 'status', 'response', 'looked', 'times'],
@@ -290,20 +293,67 @@ Insight: {log.insight}"""
             'boundary_violation': ['interrupt', 'unexpected', 'unannounced', 'without', 'permission', 'suddenly'],
             'performance_anxiety': ['presentation', 'interview', 'meeting', 'tomorrow', 'performance', 'speak', 'present', 'woke up', 'mind racing'],
             'family_dynamics': ['father', 'mother', 'sister', 'parent', 'family', 'relative'],
-            'financial_anxiety': ['payment', 'transaction', 'money', 'bank', 'deposit', 'transfer']
+            'financial_anxiety': ['payment', 'transaction', 'money', 'bank', 'deposit', 'transfer'],
+            'social_validation_seeking': ['approval', 'like', 'accept', 'judge', 'opinion', 'think of me'],
+            'perfectionism_loop': ['perfect', 'right', 'correct', 'mistake', 'wrong', 'flawless', 'exactly']
         }
         
-        # Count pattern matches
+        # Count pattern matches with weighted scoring
         pattern_scores = {}
         for pattern_name, keywords in pattern_indicators.items():
-            score = sum(1 for keyword in keywords if keyword in text_lower)
+            score = 0
+            for keyword in keywords:
+                if keyword in text_lower:
+                    score += 1
+                if keyword in trigger.lower():
+                    score += 1.5  # Trigger matches are more important
+                if keyword in somatic_cognitive_response.lower():
+                    score += 0.5
+            
             if score > 0:
                 pattern_scores[pattern_name] = score
         
-        # Generate insight based on strongest pattern
+        # Map internal pattern names to display names
+        pattern_display_names = {
+            'sunk_cost': 'Sunk Cost Fallacy',
+            'anticipatory_vigilance': 'Anticipatory Vigilance',
+            'emotional_pendulum': 'Emotional Pendulum',
+            'compliance_reflex': 'Compliance Reflex',
+            'boundary_violation': 'Boundary Violation',
+            'performance_anxiety': 'Performance Anxiety',
+            'family_dynamics': 'Family Dynamics',
+            'financial_anxiety': 'Financial Anxiety',
+            'social_validation_seeking': 'Social Validation Seeking',
+            'perfectionism_loop': 'Perfectionism Loop'
+        }
+        
         if pattern_scores:
             primary_pattern = max(pattern_scores, key=pattern_scores.get)
-            return self._generate_pattern_insight(primary_pattern, text, trigger, somatic_cognitive_response)
+            return pattern_display_names.get(primary_pattern, 'Emotional Activation Pattern')
+        
+        return 'Emotional Activation Pattern'
+    
+    def _generate_insight(self, text: str, trigger: str, somatic_cognitive_response: str, pattern: str) -> str:
+        """Generate insight based on the identified pattern"""
+        
+        # Map display pattern names back to internal names for insight generation
+        pattern_mapping = {
+            'Sunk Cost Fallacy': 'sunk_cost',
+            'Anticipatory Vigilance': 'anticipatory_vigilance',
+            'Emotional Pendulum': 'emotional_pendulum',
+            'Compliance Reflex': 'compliance_reflex',
+            'Boundary Violation': 'boundary_violation',
+            'Performance Anxiety': 'performance_anxiety',
+            'Family Dynamics': 'family_dynamics',
+            'Financial Anxiety': 'financial_anxiety',
+            'Social Validation Seeking': 'social_validation_seeking',
+            'Perfectionism Loop': 'perfectionism_loop'
+        }
+        
+        # Generate insight based on identified pattern
+        pattern_key = pattern_mapping.get(pattern)
+        if pattern_key:
+            return self._generate_pattern_insight(pattern_key, text, trigger, somatic_cognitive_response)
         
         # Generic insight for unclassified patterns
         return self._generate_generic_insight(text, somatic_cognitive_response)
@@ -359,6 +409,17 @@ Insight: {log.insight}"""
                    "treats monetary accuracy as survival-level importance. "
                    "Mental hoarding accumulates micro-anxieties without purge. "
                    "Precision is not panic. Every cent does not cost your peace.")
+        
+        elif pattern_type == 'social_validation_seeking':
+            return ("This demonstrates external validation dependency—emotional regulation "
+                   "outsourced to others' responses and approval. "
+                   "The nervous system conflates acceptance with safety. "
+                   "Internal worth does not require external confirmation.")
+        
+        elif pattern_type == 'perfectionism_loop':
+            return ("Perfectionism functions as anxiety management through control illusion. "
+                   "The system attempts to prevent criticism by eliminating all possible flaws. "
+                   "Perfect is the enemy of done. Excellence does not require perfection.")
         
         else:
             return self._generate_generic_insight(text, somatic_cognitive_response)
