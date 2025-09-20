@@ -30,6 +30,8 @@ class LogCreator:
         insight = self._generate_insight(situation_text, trigger, somatic_response)
         
         return StructuredLogFormat(
+            date=timestamp.strftime("%Y-%m-%d"),
+            time_of_day=LogStructure.get_time_of_day(timestamp),
             header=header,
             context=context,
             trigger=trigger,

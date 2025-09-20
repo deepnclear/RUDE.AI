@@ -12,6 +12,10 @@ class StructuredLogFormat:
     """
     Structured format for RUDE.AI logs based on training examples
     """
+    # Date and time fields (auto-generated)
+    date: str             # ISO format date (YYYY-MM-DD)
+    time_of_day: str      # morning/afternoon/evening
+    
     # Header format: "[Month Day], [Year] [Time]" (e.g., "August 27, 2025 Evening")
     header: str
     
@@ -57,6 +61,18 @@ class LogStructure:
             return "Evening"
         else:
             return "Night"
+    
+    @staticmethod
+    def get_time_of_day(timestamp: datetime) -> str:
+        """Get simplified time of day for time_of_day field (morning/afternoon/evening)"""
+        hour = timestamp.hour
+        
+        if 5 <= hour < 12:
+            return "morning"
+        elif 12 <= hour < 17:
+            return "afternoon" 
+        else:
+            return "evening"  # Combine evening and night into "evening"
     
     @staticmethod
     def get_context_format() -> str:
