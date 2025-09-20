@@ -26,8 +26,8 @@ class LogCreator:
         # Extract components using pattern matching
         situation = self._extract_situation(situation_text)
         trigger = self._extract_trigger(situation_text)
-        somatic_response = self._extract_somatic_response(situation_text)
-        insight = self._generate_insight(situation_text, trigger, somatic_response)
+        somatic_cognitive_response = self._extract_somatic_cognitive_response(situation_text)
+        insight = self._generate_insight(situation_text, trigger, somatic_cognitive_response)
         
         return StructuredLogFormat(
             date=timestamp.strftime("%Y-%m-%d"),
@@ -35,7 +35,7 @@ class LogCreator:
             header=header,
             situation=situation,
             trigger=trigger,
-            somatic_response=somatic_response,
+            somatic_cognitive_response=somatic_cognitive_response,
             insight=insight,
             log_id=log_id,
             timestamp=timestamp,
@@ -49,7 +49,7 @@ class LogCreator:
 
 Situation: {log.situation}
 Trigger: {log.trigger}
-Somatic Response: {log.somatic_response}
+Somatic Cognitive Response: {log.somatic_cognitive_response}
 Insight: {log.insight}"""
         
         return formatted_log
@@ -181,8 +181,8 @@ Insight: {log.insight}"""
         
         return self._extract_emotional_context(text)
     
-    def _extract_somatic_response(self, text: str) -> str:
-        """Extract physical/bodily reactions from text"""
+    def _extract_somatic_cognitive_response(self, text: str) -> str:
+        """Extract physical/bodily reactions and cognitive responses from text"""
         text_lower = text.lower()
         
         # Somatic indicators organized by body system
@@ -238,7 +238,7 @@ Insight: {log.insight}"""
                     for match in matches:
                         if isinstance(match, tuple):
                             match = ' '.join(match)
-                        cleaned_match = self._clean_somatic_response(match)
+                        cleaned_match = self._clean_somatic_cognitive_response(match)
                         if cleaned_match:
                             found_responses.append(cleaned_match)
         
@@ -252,7 +252,7 @@ Insight: {log.insight}"""
         for pattern in intensity_patterns:
             matches = re.findall(pattern, text_lower)
             if matches:
-                found_responses.extend([self._clean_somatic_response(match) for match in matches])
+                found_responses.extend([self._clean_somatic_cognitive_response(match) for match in matches])
         
         if found_responses:
             # Remove duplicates and filter out poor quality responses
@@ -277,7 +277,7 @@ Insight: {log.insight}"""
         
         return "Emotional activation detected"
     
-    def _generate_insight(self, text: str, trigger: str, somatic_response: str) -> str:
+    def _generate_insight(self, text: str, trigger: str, somatic_cognitive_response: str) -> str:
         """Generate insight based on patterns identified in the situation"""
         text_lower = text.lower()
         
@@ -303,12 +303,12 @@ Insight: {log.insight}"""
         # Generate insight based on strongest pattern
         if pattern_scores:
             primary_pattern = max(pattern_scores, key=pattern_scores.get)
-            return self._generate_pattern_insight(primary_pattern, text, trigger, somatic_response)
+            return self._generate_pattern_insight(primary_pattern, text, trigger, somatic_cognitive_response)
         
         # Generic insight for unclassified patterns
-        return self._generate_generic_insight(text, somatic_response)
+        return self._generate_generic_insight(text, somatic_cognitive_response)
     
-    def _generate_pattern_insight(self, pattern_type: str, text: str, trigger: str, somatic_response: str) -> str:
+    def _generate_pattern_insight(self, pattern_type: str, text: str, trigger: str, somatic_cognitive_response: str) -> str:
         """Generate specific insights based on identified patterns"""
         
         if pattern_type == 'sunk_cost':
@@ -361,18 +361,18 @@ Insight: {log.insight}"""
                    "Precision is not panic. Every cent does not cost your peace.")
         
         else:
-            return self._generate_generic_insight(text, somatic_response)
+            return self._generate_generic_insight(text, somatic_cognitive_response)
     
-    def _generate_generic_insight(self, text: str, somatic_response: str) -> str:
+    def _generate_generic_insight(self, text: str, somatic_cognitive_response: str) -> str:
         """Generate generic insight when no specific pattern is identified"""
         
-        if any(word in somatic_response.lower() for word in ['chest', 'explosion', 'burning']):
+        if any(word in somatic_cognitive_response.lower() for word in ['chest', 'explosion', 'burning']):
             return ("This was a somatic override scenario. Your nervous system misread the situation "
                    "as threat based on prior emotional scripts. "
                    "The body's response preceded cognitive evaluation. "
                    "Recognition interrupts the automatic sequence.")
         
-        elif any(word in somatic_response.lower() for word in ['anxiety', 'nervous', 'stress']):
+        elif any(word in somatic_cognitive_response.lower() for word in ['anxiety', 'nervous', 'stress']):
             return ("Anxiety functions here as anticipatory protection—attempting to control "
                    "uncertain outcomes through mental preparation. "
                    "The nervous system conflates vigilance with safety. "
@@ -393,8 +393,8 @@ Insight: {log.insight}"""
             cleaned = cleaned[0].upper() + cleaned[1:]
         return cleaned
     
-    def _clean_somatic_response(self, text: str) -> str:
-        """Clean somatic response text"""
+    def _clean_somatic_cognitive_response(self, text: str) -> str:
+        """Clean somatic cognitive response text"""
         # Remove extra whitespace and normalize
         cleaned = re.sub(r'\s+', ' ', text.strip())
         # Remove common filler words

@@ -83,7 +83,7 @@ def demo_standalone_log_creation():
     print(f"Header: {log.header}")
     print(f"Situation: {log.situation}")
     print(f"Trigger: {log.trigger}")
-    print(f"Somatic Response: {log.somatic_response}")
+    print(f"Somatic Cognitive Response: {log.somatic_cognitive_response}")
     print(f"Insight: {log.insight}")
     print(f"Log ID: {log.log_id}")
 

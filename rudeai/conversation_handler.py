@@ -183,13 +183,13 @@ class RudeAIConversationHandler:
         ]
         
         # Basic customization based on log content
-        if 'chest' in log.somatic_response.lower():
+        if 'chest' in log.somatic_cognitive_response.lower():
             base_sequence.append("6. Address chest tension with focused breathing")
             
         if 'checking' in log.trigger.lower():
             base_sequence.append("6. Remove access to checking stimulus")
             
-        if 'anxiety' in log.somatic_response.lower():
+        if 'anxiety' in log.somatic_cognitive_response.lower():
             base_sequence.append("6. Ground through sensory awareness")
         
         return "\n".join(base_sequence)

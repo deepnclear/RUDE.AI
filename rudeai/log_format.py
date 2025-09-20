@@ -20,10 +20,10 @@ class StructuredLogFormat:
     header: str
     
     # Core log components (always present)
-    situation: str        # 1-2 sentences describing the situation
-    trigger: str          # What caused the emotional response
-    somatic_response: str # Physical/bodily reactions
-    insight: str         # Pattern analysis and deeper understanding
+    situation: str               # 1-2 sentences describing the situation
+    trigger: str                 # What caused the emotional response
+    somatic_cognitive_response: str # Physical/bodily reactions and cognitive responses
+    insight: str                 # Pattern analysis and deeper understanding
     
     # Metadata
     log_id: str
@@ -105,9 +105,9 @@ class LogStructure:
         return "Specific precipitating event or pattern that caused emotional activation"
     
     @staticmethod
-    def get_somatic_response_format() -> str:
+    def get_somatic_cognitive_response_format() -> str:
         """
-        Somatic Response format rules:
+        Somatic Cognitive Response format rules:
         - Physical and cognitive reactions
         - Use bullet points with dashes (–) for multiple items
         - Include specific body sensations and mental patterns
@@ -163,7 +163,7 @@ class LogComponentPatterns:
         "[Person] [action] triggering [historical pattern]"
     ]
     
-    SOMATIC_PATTERNS = [
+    SOMATIC_COGNITIVE_PATTERNS = [
         "Light/mild [emotion] in [body location]",
         "[Intensity] [body part] [sensation type]",
         "[Autonomic response] [specific description]", 
@@ -197,11 +197,11 @@ class LogFormatValidation:
             errors.append("Header must contain time description")
         
         # Check required components
-        required_components = ['situation', 'trigger', 'somatic_response', 'insight']
+        required_components = ['situation', 'trigger', 'somatic_cognitive_response', 'insight']
         for component in required_components:
             value = getattr(log, component)
             if not value or len(value.strip()) < 10:
-                errors.append(f"{component.title()} must be substantive (at least 10 characters)")
+                errors.append(f"{component.replace('_', ' ').title()} must be substantive (at least 10 characters)")
         
         return errors
     
