@@ -20,7 +20,7 @@ class StructuredLogFormat:
     header: str
     
     # Core log components (always present)
-    context: str          # Brief situation description
+    situation: str        # 1-2 sentences describing the situation
     trigger: str          # What caused the emotional response
     somatic_response: str # Physical/bodily reactions
     insight: str         # Pattern analysis and deeper understanding
@@ -75,10 +75,10 @@ class LogStructure:
             return "evening"  # Combine evening and night into "evening"
     
     @staticmethod
-    def get_context_format() -> str:
+    def get_situation_format() -> str:
         """
-        Context format rules:
-        - Brief situational description
+        Situation format rules:
+        - 1-2 sentences describing the situation
         - Present tense or past tense
         - Focus on activity, location, or circumstance
         
@@ -87,7 +87,7 @@ class LogStructure:
         - "Paid apartment deposit via e-transfer"
         - "Sent message to father offering communication"
         """
-        return "Brief situation description focusing on activity, location, or circumstance"
+        return "1-2 sentences describing the situation focusing on activity, location, or circumstance"
     
     @staticmethod
     def get_trigger_format() -> str:
@@ -148,7 +148,7 @@ class LogComponentPatterns:
     Common patterns found in each log component from training examples
     """
     
-    CONTEXT_PATTERNS = [
+    SITUATION_PATTERNS = [
         "Decision to [action] rather than [alternative]",
         "[Activity] while [circumstance]", 
         "Received [communication] from [person]",
@@ -197,7 +197,7 @@ class LogFormatValidation:
             errors.append("Header must contain time description")
         
         # Check required components
-        required_components = ['context', 'trigger', 'somatic_response', 'insight']
+        required_components = ['situation', 'trigger', 'somatic_response', 'insight']
         for component in required_components:
             value = getattr(log, component)
             if not value or len(value.strip()) < 10:

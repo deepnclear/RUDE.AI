@@ -24,7 +24,7 @@ class LogCreator:
         header = LogStructure.get_header_format(timestamp)
         
         # Extract components using pattern matching
-        context = self._extract_context(situation_text)
+        situation = self._extract_situation(situation_text)
         trigger = self._extract_trigger(situation_text)
         somatic_response = self._extract_somatic_response(situation_text)
         insight = self._generate_insight(situation_text, trigger, somatic_response)
@@ -33,7 +33,7 @@ class LogCreator:
             date=timestamp.strftime("%Y-%m-%d"),
             time_of_day=LogStructure.get_time_of_day(timestamp),
             header=header,
-            context=context,
+            situation=situation,
             trigger=trigger,
             somatic_response=somatic_response,
             insight=insight,
@@ -47,14 +47,14 @@ class LogCreator:
         
         formatted_log = f"""{log.header}
 
-Context: {log.context}
+Situation: {log.situation}
 Trigger: {log.trigger}
 Somatic Response: {log.somatic_response}
 Insight: {log.insight}"""
         
         return formatted_log
     
-    def _extract_context(self, text: str) -> str:
+    def _extract_situation(self, text: str) -> str:
         """Extract situational context from user description"""
         text_lower = text.lower()
         

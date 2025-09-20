@@ -81,7 +81,7 @@ def demo_standalone_log_creation():
     print(f"Date: {log.date}")
     print(f"Time of Day: {log.time_of_day}")
     print(f"Header: {log.header}")
-    print(f"Context: {log.context}")
+    print(f"Situation: {log.situation}")
     print(f"Trigger: {log.trigger}")
     print(f"Somatic Response: {log.somatic_response}")
     print(f"Insight: {log.insight}")
